@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Je vote Arnaud Collot — Générateur de photo de profil</title>
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type"         content="website">
+<meta property="og:url"          content="https://soutien.arnaudcollot.com">
+<meta property="og:title"        content="Je vote Arnaud Collot — Créez votre photo de profil">
+<meta property="og:description"  content="Affichez votre soutien à Arnaud Collot et à la liste LIPE pour Épinay-sur-Orge. Générez votre photo de profil en quelques secondes !">
+<meta property="og:image"        content="https://soutien.arnaudcollot.com/og-image.png">
+<meta property="og:image:width"  content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale"       content="fr_FR">
+<meta property="og:site_name"    content="LIPE — Libres et Indépendants pour Épinay-sur-Orge">
+
+<!-- Twitter Card -->
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="Je vote Arnaud Collot — Créez votre photo de profil">
+<meta name="twitter:description" content="Affichez votre soutien à Arnaud Collot et à la liste LIPE pour Épinay-sur-Orge.">
+<meta name="twitter:image"       content="https://soutien.arnaudcollot.com/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=Noto+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bleu:       #0062A3;
+    --bleu-clair: #C3E5ED;
+    --blanc:      #f5fafd;
+    --gris:       #ddeaf0;
+    --text:       #00324f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--blanc); font-family: 'Noto Sans', sans-serif;
+    color: var(--text); min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header {
+    width: 100%; background: var(--bleu);
+    padding: 32px 24px 24px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  header::before {
+    content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(-45deg, transparent, transparent 24px,
+      rgba(195,229,237,0.07) 24px, rgba(195,229,237,0.07) 25px);
+  }
+  header h1 {
+    font-family: 'Rubik', sans-serif; font-size: clamp(1.5rem, 4vw, 2.4rem);
+    font-weight: 900; color: #fff; position: relative; letter-spacing: -0.01em;
+  }
+  header h1 span { color: var(--bleu-clair); }
+  header p { margin-top: 6px; color: rgba(255,255,255,0.68); font-size: 0.95rem; font-weight: 300; position: relative; }
+  main {
+    width: 100%; max-width: 980px; padding: 36px 20px 60px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+  }
+  @media (max-width: 680px) { main { grid-template-columns: 1fr; } }
+  .controls { display: flex; flex-direction: column; gap: 20px; }
+  .step {
+    background: #fff; border: 1px solid var(--gris); border-radius: 14px;
+    padding: 22px; box-shadow: 0 2px 14px rgba(0,98,163,0.07);
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px; background: var(--bleu); color: #fff;
+    border-radius: 50%; font-size: 0.76rem; font-weight: 700; margin-bottom: 10px;
+  }
+  .step h2 { font-family: 'Rubik', sans-serif; font-size: 0.98rem; font-weight: 700; margin-bottom: 14px; color: var(--bleu); }
+  .upload-zone {
+    border: 2px dashed #9ac8db; border-radius: 10px; padding: 28px 16px;
+    text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fafdff;
+  }
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--bleu); background: #eaf4f9; }
+  .upload-zone svg { margin-bottom: 8px; }
+  .upload-zone p { font-size: 0.88rem; color: #5a7a90; }
+  .upload-zone p strong { color: var(--bleu); }
+  #fileInput { display: none; }
+  .option-group { display: flex; flex-direction: column; gap: 9px; }
+  .option-row {
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    padding: 10px 14px; border-radius: 8px; border: 2px solid var(--gris);
+    transition: border-color .2s, background .2s; user-select: none;
+  }
+  .option-row:hover { border-color: #7ab8d4; background: #f0f8fb; }
+  .option-row input[type=radio] { display: none; }
+  .option-row.selected { border-color: var(--bleu); background: #e8f4fa; }
+  .radio-dot {
+    width: 18px; height: 18px; border-radius: 50%; border: 2px solid #9ac8db;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: border-color .2s;
+  }
+  .option-row.selected .radio-dot { border-color: var(--bleu); }
+  .radio-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--bleu); opacity: 0; transition: opacity .2s; }
+  .option-row.selected .radio-dot::after { opacity: 1; }
+  .option-label { font-size: 0.9rem; color: var(--text); }
+  .swatch-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .swatch {
+    width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+    border: 3px solid transparent; transition: border-color .2s, transform .15s;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.18);
+  }
+  .swatch:hover { transform: scale(1.12); }
+  .swatch.active { border-color: #fff; outline: 2.5px solid var(--bleu); }
+  .slider-row { display: flex; align-items: center; gap: 12px; font-size: 0.86rem; color: #5a7a90; margin-top: 16px; }
+  input[type=range] { -webkit-appearance: none; height: 4px; border-radius: 2px; background: var(--gris); flex: 1; cursor: pointer; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--bleu); cursor: pointer; }
+  .btn-download {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 15px; background: var(--bleu); color: #fff;
+    border: none; border-radius: 10px; font-family: 'Rubik', sans-serif;
+    font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s, transform .15s;
+  }
+  .btn-download:hover { background: #004d82; transform: translateY(-1px); }
+  .btn-download:disabled { background: #9ac8db; cursor: not-allowed; transform: none; }
+  .share-hint { font-size: 0.8rem; color: #6a8ca0; text-align: center; margin-top: 10px; line-height: 1.55; }
+  .share-hint strong { color: var(--bleu); }
+  .preview-col { position: sticky; top: 24px; }
+  .preview-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #7aaabf; margin-bottom: 14px; }
+  .canvas-wrapper {
+    width: 100%; aspect-ratio: 1; max-width: 420px; margin: 0 auto;
+    border-radius: 50%; overflow: hidden;
+    box-shadow: 0 0 0 4px #fff, 0 0 0 7px var(--bleu), 0 10px 40px rgba(0,98,163,0.18);
+    background: var(--gris); position: relative;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+  .canvas-placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: #9ac8db; gap: 10px; pointer-events: none;
+  }
+  .canvas-placeholder p { font-size: 0.86rem; text-align: center; padding: 0 20px; }
+  .preview-meta { text-align: center; margin-top: 14px; font-size: 0.8rem; color: #7aaabf; }
+  footer { width: 100%; border-top: 1px solid var(--gris); padding: 18px; text-align: center; font-size: 0.76rem; color: #8aabb8; }
+  footer strong { color: var(--bleu); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Je vote <span>Arnaud Collot</span></h1>
+  <p>Créez votre photo de profil et affichez votre soutien</p>
+</header>
+<main>
+  <div class="controls">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h2>Choisissez votre photo</h2>
+      <div class="upload-zone" id="uploadZone">
+        <svg width="38" height="38" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="11" stroke="#0062A3" stroke-width="1.4"/>
+          <circle cx="12" cy="9" r="3.5" stroke="#0062A3" stroke-width="1.4"/>
+          <path d="M5 20c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="#0062A3" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <p><strong>Cliquez</strong> ou glissez votre photo ici</p>
+        <p style="margin-top:4px;font-size:.76rem;">JPG, PNG, WEBP — photo carrée recommandée</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*">
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h2>Message affiché</h2>
+      <div class="option-group" id="msgGroup">
+        <label class="option-row selected">
+          <input type="radio" name="msg" value="Je vote Arnaud Collot" checked>
+          <div class="radio-dot"></div>
+          <span class="option-label">Je vote Arnaud Collot</span>
+        </label>
+        <label class="option-row">
+          <input type="radio" name="msg" value="Je soutiens Arnaud Collot">
+          <div class="radio-dot"></div>
+          <span class="option-label">Je soutiens Arnaud Collot</span>
+        </label>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h2>Style du bandeau circulaire</h2>
+      <p style="font-size:.84rem;color:#6a8ca0;margin-bottom:12px;">Couleur de fond du bandeau</p>
+      <div class="swatch-row" id="swatchRow">
+        <div class="swatch active" data-color="#0062A3" data-text="#ffffff" style="background:#0062A3;"></div>
+        <div class="swatch" data-color="#C3E5ED" data-text="#0062A3" style="background:#C3E5ED;"></div>
+        <div class="swatch" data-color="#003d66" data-text="#C3E5ED" style="background:#003d66;"></div>
+        <div class="swatch" data-color="#ffffff" data-text="#0062A3" style="background:#ffffff;border:2px solid #c0d8e4;"></div>
+      </div>
+      <div class="slider-row">
+        <span>Épaisseur</span>
+        <input type="range" id="arcSlider" min="12" max="30" value="20">
+        <span id="arcVal">20%</span>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <h2>Téléchargez et partagez !</h2>
+      <button class="btn-download" id="downloadBtn" disabled>
+        <svg width="17" height="17" fill="none" viewBox="0 0 24 24">
+          <path d="M12 3v13M7 11l5 5 5-5" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M4 20h16" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        Télécharger ma photo
+      </button>
+      <p class="share-hint">
+        Mettez cette photo comme <strong>photo de profil</strong><br>
+        sur Facebook, Instagram, WhatsApp, LinkedIn…<br>
+        <strong>Chaque profil compte !</strong>
+      </p>
+    </div>
+  </div>
+  <div class="preview-col">
+    <div class="preview-label">Aperçu en temps réel</div>
+    <div class="canvas-wrapper">
+      <canvas id="canvas" width="600" height="600"></canvas>
+      <div class="canvas-placeholder" id="placeholder">
+        <svg width="46" height="46" fill="none" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4" stroke="#9ac8db" stroke-width="1.4"/>
+          <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#9ac8db" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <p>Votre photo apparaîtra ici</p>
+      </div>
+    </div>
+    <div class="preview-meta">Rendu 600 × 600 px — idéal pour tous les réseaux</div>
+  </div>
+</main>
+<footer>
+  Outil officiel de campagne — <strong>Libres et Indépendants pour Épinay-sur-Orge</strong><br>
+  Liste conduite par Arnaud Collot
+</footer>
+
+<script>
+const canvas      = document.getElementById('canvas');
+const ctx         = canvas.getContext('2d');
+const placeholder = document.getElementById('placeholder');
+const downloadBtn = document.getElementById('downloadBtn');
+const uploadZone  = document.getElementById('uploadZone');
+const fileInput   = document.getElementById('fileInput');
+const arcSlider   = document.getElementById('arcSlider');
+const arcVal      = document.getElementById('arcVal');
+
+const W = 600, H = 600, CX = 300, CY = 300, R = 298;
+
+let userImage    = null;
+let arcThickness = 20;
+let bandeauColor = '#0062A3';
+let textColor    = '#ffffff';
+let message      = 'Je vote Arnaud Collot';
+
+// ── GÉOMÉTRIE ────────────────────────────────────────────
+// Canvas Y pointe vers le BAS.
+// angle = 0      → point à droite  (3h)
+// angle = PI/2   → point en bas    (6h)  ← fond du cercle
+// angle = PI     → point à gauche  (9h)
+//
+// Notre arc du bas :
+//   startA = PI * 0.18  ≈ 32°  → point en bas-DROITE
+//   endA   = PI * 0.82  ≈ 148° → point en bas-GAUCHE
+//   L'arc clockwise startA→endA passe par PI/2 (le fond)
+//
+// Pour lire GAUCHE→DROITE, "J" doit être près de endA (gauche)
+// et le dernier char près de startA (droite).
+// On marche donc de endA → startA : angles DÉCROISSANTS.
+// Rotation de chaque lettre = a + PI/2
+// (tangente clockwise, lettre debout, lisible de l'extérieur)
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+
+  // ── Photo clippée ──
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  if (userImage) {
+    const iw = userImage.width, ih = userImage.height;
+    const scale = Math.max(W / iw, H / ih);
+    const sw = iw * scale, sh = ih * scale;
+    ctx.drawImage(userImage, (W - sw) / 2, (H - sh) / 2, sw, sh);
+  } else {
+    ctx.fillStyle = '#dbeef5';
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  const thick  = R * arcThickness / 100;
+  const innerR = R - thick;
+  const startA = Math.PI * 0.18;  // bas-droite
+  const endA   = Math.PI * 0.82;  // bas-gauche
+
+  // ── Bandeau ──
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, startA, endA, false);       // arc extérieur clockwise
+  ctx.arc(CX, CY, innerR, endA, startA, true);   // arc intérieur counter-clockwise
+  ctx.closePath();
+  ctx.fillStyle = bandeauColor;
+  ctx.fill();
+
+  // Fondu doux bord intérieur
+  const fade = ctx.createRadialGradient(CX, CY, innerR, CX, CY, innerR + thick * 0.45);
+  fade.addColorStop(0, hexToRgba(bandeauColor, 0));
+  fade.addColorStop(1, hexToRgba(bandeauColor, 0.5));
+  ctx.beginPath();
+  ctx.arc(CX, CY, R, startA, endA, false);
+  ctx.arc(CX, CY, innerR, endA, startA, true);
+  ctx.closePath();
+  ctx.fillStyle = fade;
+  ctx.fill();
+
+  ctx.restore();
+
+  // ── Anneaux ──
+  ctx.beginPath();
+  ctx.arc(CX, CY, R - 3, 0, Math.PI * 2);
+  ctx.strokeStyle = bandeauColor; ctx.lineWidth = 7; ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(CX, CY, R - 12, 0, Math.PI * 2);
+  ctx.strokeStyle = hexToRgba(bandeauColor, 0.22); ctx.lineWidth = 1.5; ctx.stroke();
+
+  // ── Texte ──
+  drawArcText(message, innerR + thick * 0.52, startA, endA);
+
+  if (userImage) {
+    downloadBtn.disabled = false;
+    placeholder.style.display = 'none';
+  }
+}
+
+function drawArcText(text, radius, startA, endA) {
+  const thick    = R * arcThickness / 100;
+  const fontSize = Math.round(thick * 0.48);
+
+  ctx.font         = `900 ${fontSize}px 'Rubik', sans-serif`;
+  ctx.textAlign    = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle    = textColor;
+
+  const chars      = text.split('');
+  const midA       = (startA + endA) / 2;   // = PI/2, fond du cercle
+  const charWidths = chars.map(c => ctx.measureText(c).width);
+  const spacing    = fontSize * 0.05;
+  const totalWidth = charWidths.reduce((a, b) => a + b, 0) + spacing * (chars.length - 1);
+  const totalAngle = totalWidth / radius;
+
+  // "J" commence à midA + totalAngle/2 (côté gauche = endA)
+  // on marche vers midA - totalAngle/2 (côté droit = startA)
+  // → angle DÉCROISSANT
+  let currentAngle = midA + totalAngle / 2;
+
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.45)';
+  ctx.shadowBlur  = 5;
+
+  for (let i = 0; i < chars.length; i++) {
+    const halfAngle = (charWidths[i] / 2) / radius;
+    const a = currentAngle - halfAngle;
+
+    ctx.save();
+    ctx.translate(CX + radius * Math.cos(a), CY + radius * Math.sin(a));
+    ctx.rotate(a - Math.PI / 2);
+    ctx.fillText(chars[i], 0, 0);
+    ctx.restore();
+
+    currentAngle -= charWidths[i] / radius + spacing / radius;
+  }
+  ctx.restore();
+}
+
+// ── Upload ──────────────────────────────────────────────
+uploadZone.addEventListener('click', () => fileInput.click());
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault(); uploadZone.classList.remove('drag-over');
+  if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+});
+fileInput.addEventListener('change', e => { if (e.target.files[0]) loadFile(e.target.files[0]); });
+function loadFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => { userImage = img; draw(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Swatches ────────────────────────────────────────────
+document.querySelectorAll('.swatch').forEach(s => {
+  s.addEventListener('click', () => {
+    document.querySelectorAll('.swatch').forEach(x => x.classList.remove('active'));
+    s.classList.add('active');
+    bandeauColor = s.dataset.color;
+    textColor    = s.dataset.text;
+    draw();
+  });
+});
+
+// ── Slider ──────────────────────────────────────────────
+arcSlider.addEventListener('input', () => {
+  arcThickness = +arcSlider.value;
+  arcVal.textContent = arcThickness + '%';
+  draw();
+});
+
+// ── Message ─────────────────────────────────────────────
+document.querySelectorAll('#msgGroup .option-row').forEach(row => {
+  row.addEventListener('click', () => {
+    document.querySelectorAll('#msgGroup .option-row').forEach(r => r.classList.remove('selected'));
+    row.classList.add('selected');
+    message = row.querySelector('input').value;
+    draw();
+  });
+});
+
+// ── Download ────────────────────────────────────────────
+downloadBtn.addEventListener('click', () => {
+  const link = document.createElement('a');
+  link.download = 'je-vote-arnaud-collot.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+});
+
+function hexToRgba(hex, alpha) {
+  const r = parseInt(hex.slice(1,3), 16);
+  const g = parseInt(hex.slice(3,5), 16);
+  const b = parseInt(hex.slice(5,7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+
+document.fonts.ready.then(() => draw());
+</script>
+</body>
+</html>
